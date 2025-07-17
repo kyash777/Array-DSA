@@ -1,0 +1,27 @@
+class Solution {
+    public int maxFreeTime(int eventTime, int k, int[] startTime, int[] endTime) {
+        int n=startTime.length;
+        ArrayList<Integer>freeTime=new ArrayList<>();
+        freeTime.add(startTime[0]-0);
+        for(int i=1;i<n;i++){
+            freeTime.add(startTime[i]-endTime[i-1]);
+        }
+        freeTime.add(eventTime-endTime[n-1]);
+
+        int temp=0;
+        int ans=-1;
+        int indx=0;
+        for(int i=0;i<=k;i++){
+            temp=temp+freeTime.get(i);
+        }
+        ans=Math.max(ans,temp);
+        for(int i=k+1;i<=n;i++){
+            temp=temp+freeTime.get(i)-freeTime.get(indx);
+            ans=Math.max(temp,ans);
+            indx++;
+        }
+
+        return ans;
+
+    }
+}
