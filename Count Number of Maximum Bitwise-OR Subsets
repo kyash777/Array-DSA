@@ -1,0 +1,24 @@
+class Solution {
+    public int countMaxOrSubsets(int[] nums) {
+        int maxOr = 0;
+        for (int num : nums) {
+            maxOr |= num;
+        }
+
+        return countSubsets(nums, 0, 0, maxOr);
+    }
+
+    int countSubsets(int[] nums, int index, int currOr, int maxOr) {
+        if (index == nums.length) {
+            return currOr == maxOr ? 1 : 0;
+        }
+
+        // Choose the current element
+        int take = countSubsets(nums, index + 1, currOr | nums[index], maxOr);
+
+        // Don't choose the current element
+        int notTake = countSubsets(nums, index + 1, currOr, maxOr);
+
+        return take + notTake;
+    }
+}
