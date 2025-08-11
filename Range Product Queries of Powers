@@ -1,0 +1,51 @@
+class Solution {
+    public int[] productQueries(int n, int[][] queries) {
+        final int MOD = 1000000007;
+        int m=queries.length;
+        ArrayList<Integer> arr=new ArrayList<>();
+        int ans[]=new int[m];
+
+        for(int i=31;i>=0;i--){
+            int x=(int) Math.pow(2,i);
+            if(x<=n){
+                n=n-x;
+                arr.add(x);
+            }
+        }
+
+        Collections.sort(arr);
+        int product[]=new int[arr.size()];
+        product[0]=arr.get(0) % MOD;
+
+
+        for(int i=1;i<arr.size();i++){
+            product[i] = (int)((1L * arr.get(i) * product[i-1]) % MOD);
+        }
+
+        for(int i=0;i<m;i++){
+            int l = queries[i][0];
+            int r = queries[i][1];
+
+            if(l == 0){
+                ans[i] = product[r];
+            } else {
+                long numerator = product[r];
+                long denominator = product[l-1];
+                long inverse = modPow(denominator, MOD-2, MOD); // modular inverse
+                ans[i] = (int)((numerator * inverse) % MOD);
+            }
+        }
+        return ans;
+    }
+
+    private long modPow(long base, long exp, int mod) {
+        long res = 1;
+        base %= mod;
+        while (exp > 0) {
+            if ((exp & 1) != 0) res = (res * base) % mod;
+            base = (base * base) % mod;
+            exp >>= 1;
+        }
+        return res;
+    }
+}
