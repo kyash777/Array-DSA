@@ -1,0 +1,61 @@
+import java.util.*;
+
+class Solution {
+    public int[] countMentions(int numberOfUsers, List<List<String>> events) {
+        int[] ans = new int[numberOfUsers];
+        int[] offlineUntil = new int[numberOfUsers]; // time when user comes back online (0 => currently online)
+
+        // Sort by timestamp; if equal, process OFFLINE before MESSAGE
+        Collections.sort(events, (a, b) -> {
+            int t1 = Integer.parseInt(a.get(1));
+            int t2 = Integer.parseInt(b.get(1));
+            if (t1 != t2) return Integer.compare(t1, t2);
+            if (!a.get(0).equals(b.get(0))) {
+                return a.get(0).equals("OFFLINE") ? -1 : 1;
+            }
+            return 0;
+        });
+
+        for (List<String> e : events) {
+            String type = e.get(0);
+            int t = Integer.parseInt(e.get(1));
+
+            if (type.equals("OFFLINE")) {
+                int id = Integer.parseInt(e.get(2));
+                // It's guaranteed the user is online at this time.
+                offlineUntil[id] = t + 60;
+                continue;
+            }
+
+            // MESSAGE
+            String mention = e.get(2);
+            if (mention.equals("ALL")) {
+                // Mentions all users regardless of online/offline
+                for (int i = 0; i < numberOfUsers; i++) ans[i]++;
+            } else if (mention.equals("HERE")) {
+                // Mentions only users who are online at time t
+                for (int i = 0; i < numberOfUsers; i++) {
+                    if (!isOfflineAt(t, offlineUntil[i])) ans[i]++;
+                }
+            } else {
+                // Mentions like "id0 id1 id0" (duplicates count)
+                String[] parts = mention.split(" ");
+                for (String p : parts) {
+                    // token format guaranteed: "id<number>"
+                    System.out.println(p);
+                    int id = Integer.parseInt(p.substring(2));
+                    // id mentions count even if user is offline
+                    ans[id]++;
+                }
+            }
+        }
+
+        return ans;
+    }
+
+    private boolean isOfflineAt(int t, int until) {
+        if (until == 0) return false;          // never went offline yet
+        int start = until - 60;                 // offline window is [start, until)
+        return t >= start && t < until;         // offline strictly before 'until'
+    }
+}
