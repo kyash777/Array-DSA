@@ -1,0 +1,55 @@
+class Pair{
+    int value;
+    int indx;
+    Pair(int value,int indx){
+        this.value=value;
+        this.indx=indx;
+    }
+}
+class Solution {
+    public int[] lexicographicallySmallestArray(int[] nums, int limit) {
+        int n=nums.length;
+        ArrayList<Pair>arr=new ArrayList<>();
+        Map<Integer,ArrayList<Pair>>mp=new HashMap<>();
+
+        for(int i=0;i<n;i++){
+            arr.add(new Pair(nums[i],i));
+        }
+        Collections.sort(arr,(a,b)->a.value-b.value);
+
+        int gid=0;
+        ArrayList<Pair>firstGroup=new ArrayList<>();
+        firstGroup.add(arr.get(0));
+        mp.put(gid,firstGroup);
+
+        for(int i=1;i<n;i++){
+            ArrayList<Pair>x=mp.get(gid);
+            if(Math.abs(x.get(x.size()-1).value-arr.get(i).value)<=limit){
+                x.add(arr.get(i));
+                mp.put(gid,x);
+            }else{
+                gid++;
+                ArrayList<Pair>y=new ArrayList<>();
+                y.add(arr.get(i));
+                mp.put(gid,y);
+            }
+        }
+
+        for(int key : mp.keySet()){
+            ArrayList<Pair>groups=mp.get(key);
+            ArrayList<Integer>indxs=new ArrayList<>();
+            int s=groups.size();
+            for(int i=0;i<s;i++){
+                indxs.add(groups.get(i).indx);
+            }
+            Collections.sort(indxs);
+
+            for(int k=0;k<s;k++){
+                nums[indxs.get(k)]=groups.get(k).value;
+            }
+
+        }
+
+        return nums;
+    }
+}
